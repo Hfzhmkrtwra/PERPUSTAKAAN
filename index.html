@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Sekolah Digital</title>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  
+  <!-- LOGIN PAGE -->
+  <div id="login-page">
+    <div class="login-card">
+      <div class="login-logo">📚 Pustaka<span>Digital</span></div>
+      <div class="login-sub">Perpustakaan Sekolah Digital — Sistem Peminjaman Buku</div>
+      <div id="login-alert"></div>
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="setRole('admin')">🔑 Admin</button>
+        <button class="role-tab" onclick="setRole('siswa')">🎒 Siswa</button>
+      </div>
+      <div id="login-role-info" style="font-size:12px;color:var(--muted);margin-bottom:16px;padding:8px 12px;background:var(--cream);border-radius:6px;">
+        Default admin: <b>admin</b> / <b>admin123</b>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Masukkan password">
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Masuk →</button>
+      <div class="login-footer" id="register-link-wrap">
+        Belum punya akun? <a onclick="showRegister()">Daftar sebagai siswa</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- REGISTER PAGE -->
+  <div id="register-page">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);">
+      <div class="login-card">
+        <div class="login-logo">📚 Daftar<span>Akun</span></div>
+        <div class="login-sub">Buat akun siswa baru</div>
+        <div id="reg-alert"></div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="reg-nama" placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label>NIS / No. Induk</label>
+          <input type="text" id="reg-nis" placeholder="Nomor Induk Siswa">
+        </div>
+        <div class="form-group">
+          <label>Kelas</label>
+          <input type="text" id="reg-kelas" placeholder="Contoh: XI RPL 1">
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="reg-username" placeholder="Buat username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" placeholder="Buat password">
+        </div>
+        <button class="btn btn-primary" onclick="doRegister()">Daftar →</button>
+        <div class="login-footer">Sudah punya akun? <a onclick="showLogin()">Masuk</a></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- MAIN APP -->
+  <div id="app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-title">📚 Pustaka<span>Digital</span></div>
+        <div class="sidebar-brand-sub">Perpustakaan Sekolah</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar-text">A</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-username">Admin</div>
+          <div class="role" id="sidebar-role">Admin</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Utama</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-icon">🏠</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('buku')">
+          <span class="nav-icon">📖</span> Data Buku
+        </div>
+        <div class="nav-item" id="nav-anggota" onclick="showPage('anggota')">
+          <span class="nav-icon">👥</span> Kelola Anggota
+        </div>
+        <div class="nav-section">Transaksi</div>
+        <div class="nav-item" onclick="showPage('pinjam')">
+          <span class="nav-icon">📤</span> Peminjaman
+        </div>
+        <div class="nav-item" onclick="showPage('kembali')">
+          <span class="nav-icon">📥</span> Pengembalian
+        </div>
+        <div class="nav-item" id="nav-transaksi" onclick="showPage('transaksi')">
+          <span class="nav-icon">📋</span> Riwayat Transaksi
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-actions">
+          <span style="font-size:13px;color:var(--muted);" id="topbar-date"></span>
+        </div>
+      </div>
+      <div class="page-content">
+        
+        <!-- DASHBOARD -->
+        <div id="page-dashboard" class="page active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-num" id="stat-buku">0</div>
+              <div class="stat-label">Total Buku</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="stat-anggota">0</div>
+              <div class="stat-label">Total Anggota</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="stat-dipinjam">0</div>
+              <div class="stat-label">Sedang Dipinjam</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="stat-terlambat">0</div>
+              <div class="stat-label">Terlambat</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Peminjaman Aktif</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Peminjam</th>
+                    <th>Judul Buku</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tenggat</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-pinjam-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- DATA BUKU -->
+        <div id="page-buku" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Data Buku Perpustakaan</div>
+              <div id="buku-add-btn"></div>
+            </div>
+            <div class="search-bar">
+              <input class="search-input" type="text" id="search-buku" placeholder="🔍 Cari judul, pengarang, kategori..." oninput="renderBuku()">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Judul Buku</th>
+                    <th>Pengarang</th>
+                    <th>Penerbit</th>
+                    <th>Kategori</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="buku-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ANGGOTA -->
+        <div id="page-anggota" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Kelola Anggota</div>
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-anggota')">+ Tambah Anggota</button>
+            </div>
+            <div class="search-bar">
+              <input class="search-input" type="text" id="search-anggota" placeholder="🔍 Cari nama, NIS, kelas..." oninput="renderAnggota()">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>NIS</th>
+                    <th>Kelas</th>
+                    <th>Username</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="anggota-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PEMINJAMAN -->
+        <div id="page-pinjam" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Peminjaman Buku</div>
+              <div id="pinjam-add-btn"></div>
+            </div>
+            <div class="search-bar">
+              <input class="search-input" type="text" id="search-pinjam" placeholder="🔍 Cari nama atau judul buku..." oninput="renderPinjam()">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Peminjam</th>
+                    <th>Judul Buku</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Tenggat</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="pinjam-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PENGEMBALIAN -->
+        <div id="page-kembali" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pengembalian Buku</div>
+            </div>
+            <div class="search-bar">
+              <input class="search-input" type="text" id="search-kembali" placeholder="🔍 Cari nama atau judul buku..." oninput="renderKembali()">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Peminjam</th>
+                    <th>Judul Buku</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Tenggat</th>
+                    <th>Denda</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="kembali-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- RIWAYAT TRANSAKSI -->
+        <div id="page-transaksi" class="page">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Riwayat Transaksi</div>
+            </div>
+            <div class="search-bar">
+              <input class="search-input" type="text" id="search-transaksi" placeholder="🔍 Cari transaksi..." oninput="renderTransaksi()">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Peminjam</th>
+                    <th>Judul Buku</th>
+                    <th>Tgl Pinjam</th>
+                    <th>Tgl Kembali</th>
+                    <th>Denda</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="transaksi-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <!-- MODALS -->
+  <!-- Modal Buku -->
+  <div class="modal-overlay" id="modal-buku">
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('modal-buku')">×</button>
+      <div class="modal-title" id="modal-buku-title">Tambah Buku</div>
+      <input type="hidden" id="buku-id">
+      <div class="form-group"><label>Judul Buku</label><input type="text" id="buku-judul" placeholder="Judul buku"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Pengarang</label><input type="text" id="buku-pengarang" placeholder="Pengarang"></div>
+        <div class="form-group"><label>Penerbit</label><input type="text" id="buku-penerbit" placeholder="Penerbit"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Tahun Terbit</label><input type="number" id="buku-tahun" placeholder="Tahun"></div>
+        <div class="form-group"><label>Kategori</label>
+          <select id="buku-kategori">
+            <option>Fiksi</option>
+            <option>Non-Fiksi</option>
+            <option>Sains</option>
+            <option>Matematika</option>
+            <option>Sejarah</option>
+            <option>Teknologi</option>
+            <option>Bahasa</option>
+            <option>Agama</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Stok Buku</label><input type="number" id="buku-stok" placeholder="Jumlah stok" min="0"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('modal-buku')">Batal</button>
+        <button class="btn btn-success" onclick="saveBuku()">Simpan</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Anggota -->
+  <div class="modal-overlay" id="modal-anggota">
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('modal-anggota')">×</button>
+      <div class="modal-title" id="modal-anggota-title">Tambah Anggota</div>
+      <input type="hidden" id="anggota-id">
+      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="anggota-nama" placeholder="Nama lengkap"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>NIS</label><input type="text" id="anggota-nis" placeholder="No. Induk Siswa"></div>
+        <div class="form-group"><label>Kelas</label><input type="text" id="anggota-kelas" placeholder="XI RPL 1"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Username</label><input type="text" id="anggota-username" placeholder="Username login"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="anggota-password" placeholder="Password"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('modal-anggota')">Batal</button>
+        <button class="btn btn-success" onclick="saveAnggota()">Simpan</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Pinjam -->
+  <div class="modal-overlay" id="modal-pinjam">
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('modal-pinjam')">×</button>
+      <div class="modal-title">Form Peminjaman Buku</div>
+      <div class="form-group" id="pinjam-anggota-group">
+        <label>Pilih Anggota / Peminjam</label>
+        <select id="pinjam-anggota-id">
+          <option value="">-- Pilih Anggota --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pilih Buku</label>
+        <select id="pinjam-buku-id">
+          <option value="">-- Pilih Buku --</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tanggal Pinjam</label><input type="date" id="pinjam-tgl"></div>
+      <div class="form-group"><label>Tenggat Pengembalian</label><input type="date" id="pinjam-tenggat"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('modal-pinjam')">Batal</button>
+        <button class="btn btn-success" onclick="savePinjam()">Pinjam Buku</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Detail/Kembali -->
+  <div class="modal-overlay" id="modal-kembali">
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal('modal-kembali')">×</button>
+      <div class="modal-title">Konfirmasi Pengembalian</div>
+      <div id="kembali-detail" style="background:var(--cream);padding:16px;border-radius:8px;margin-bottom:20px;font-size:14px;line-height:2;"></div>
+      <div class="form-group"><label>Tanggal Kembali</label><input type="date" id="kembali-tgl"></div>
+      <div id="denda-info" style="display:none;padding:12px;background:#fff3cd;border-radius:8px;margin-top:12px;font-size:14px;"></div>
+      <input type="hidden" id="kembali-pinjam-id">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('modal-kembali')">Batal</button>
+        <button class="btn btn-success" onclick="prosesPengembalian()">✅ Kembalikan</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Confirm Delete -->
+  <div class="modal-overlay" id="modal-confirm">
+    <div class="modal" style="max-width:360px;text-align:center;padding:40px 32px;">
+      <div style="font-size:48px;margin-bottom:12px;">🗑️</div>
+      <div class="modal-title" style="justify-content:center;">Hapus Data?</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;" id="confirm-msg">Data ini akan dihapus permanen.</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-secondary" onclick="closeModal('modal-confirm')">Batal</button>
+        <button class="btn btn-danger" id="confirm-yes-btn">Hapus</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script type="module" src="main.js"></script>
+</body>
+
+</html>

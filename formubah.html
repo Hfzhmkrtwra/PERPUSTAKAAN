@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ubah Data Buku</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: var(--ink); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .form-container { max-width: 500px; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="login-card" style="max-width:100%;">
+      <div class="login-logo">✏️ Ubah<span>Buku</span></div>
+      <div class="login-sub">Pilih buku yang akan diubah</div>
+      <div id="alert"></div>
+      <div class="form-group">
+        <label>Pilih Buku</label>
+        <select id="pilih-buku">
+          <option value="">-- Pilih Buku --</option>
+        </select>
+      </div>
+      <form id="form-ubah-buku" style="display:none;">
+        <input type="hidden" id="buku-id">
+        <div class="form-group"><label>Judul Buku</label><input type="text" id="judul" required></div>
+        <div class="grid-2">
+          <div class="form-group"><label>Pengarang</label><input type="text" id="pengarang" required></div>
+          <div class="form-group"><label>Penerbit</label><input type="text" id="penerbit" required></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Tahun Terbit</label><input type="number" id="tahun" required></div>
+          <div class="form-group"><label>Kategori</label>
+            <select id="kategori">
+              <option>Fiksi</option><option>Non-Fiksi</option><option>Sains</option>
+              <option>Matematika</option><option>Sejarah</option><option>Teknologi</option>
+              <option>Bahasa</option><option>Agama</option><option>Lainnya</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Stok Buku</label><input type="number" id="stok" min="0" required></div>
+        <button type="submit" class="btn btn-primary">Update Buku</button>
+      </form>
+      <div class="login-footer" style="margin-top:16px;">
+        <a href="index.html">← Kembali ke aplikasi</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DB = {
+      get: (key) => JSON.parse(localStorage.getItem('lib_'+key) || '[]'),
+      set: (key, val) => localStorage.setItem('lib_'+key, JSON.stringify(val)),
+    };
+
+    const selectBuku = document.getElementById('pilih-buku');
+    const formUbah = document.getElementById('form-ubah-buku');
+    const bukuIdInput = document.getElementById('buku-id');
+    const judulInput = document.getElementById('judul');
+    const pengarangInput = document.getElementById('pengarang');
+    const penerbitInput = document.getElementById('penerbit');
+    const tahunInput = document.getElementById('tahun');
+    const kategoriSelect = document.getElementById('kategori');
+    const stokInput = document.getElementById('stok');
+
+    function loadBukuOptions() {
+      const buku = DB.get('buku');
+      let opts = '<option value="">-- Pilih Buku --</option>';
+      buku.forEach(b => {
+        opts += `<option value="${b.id}">${b.judul} (${b.pengarang})</option>`;
+      });
+      selectBuku.innerHTML = opts;
+    }
+
+    selectBuku.addEventListener('change', function() {
+      const id = parseInt(this.value);
+      if (!id) {
+        formUbah.style.display = 'none';
+        return;
+      }
+      const buku = DB.get('buku').find(b => b.id === id);
+      if (buku) {
+        bukuIdInput.value = buku.id;
+        judulInput.value = buku.judul;
+        pengarangInput.value = buku.pengarang;
+        penerbitInput.value = buku.penerbit;
+        tahunInput.value = buku.tahun;
+        kategoriSelect.value = buku.kategori;
+        stokInput.value = buku.stok;
+        formUbah.style.display = 'block';
+      }
+    });
+
+    document.getElementById('form-ubah-buku').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = parseInt(bukuIdInput.value);
+      const data = {
+        judul: judulInput.value.trim(),
+        pengarang: pengarangInput.value.trim(),
+        penerbit: penerbitInput.value.trim(),
+        tahun: parseInt(tahunInput.value) || 0,
+        kategori: kategoriSelect.value,
+        stok: parseInt(stokInput.value) || 0,
+      };
+
+      let buku = DB.get('buku');
+      buku = buku.map(b => b.id === id ? { ...b, ...data } : b);
+      DB.set('buku', buku);
+
+      document.getElementById('alert').innerHTML = '<div class="alert alert-success">Buku berhasil diupdate!</div>';
+      setTimeout(() => location.href = 'index.html', 1500);
+    });
+
+    loadBukuOptions();
+  </script>
+</body>
+</html>
