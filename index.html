@@ -6,6 +6,8 @@
   <title>Perpustakaan Sekolah Digital</title>
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome (untuk ikon mata) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -28,9 +30,13 @@
         <label>Username</label>
         <input type="text" id="login-username" placeholder="Masukkan username">
       </div>
+      <!-- PASSWORD DENGAN TOGGLE -->
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="Masukkan password">
+        <div class="password-wrapper">
+          <input type="password" id="login-password" placeholder="Masukkan password">
+          <i class="far fa-eye toggle-password"></i>
+        </div>
       </div>
       <button class="btn btn-primary" onclick="doLogin()">Masuk →</button>
       <div class="login-footer" id="register-link-wrap">
@@ -62,9 +68,13 @@
           <label>Username</label>
           <input type="text" id="reg-username" placeholder="Buat username">
         </div>
+        <!-- PASSWORD DENGAN TOGGLE -->
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="reg-password" placeholder="Buat password">
+          <div class="password-wrapper">
+            <input type="password" id="reg-password" placeholder="Buat password">
+            <i class="far fa-eye toggle-password"></i>
+          </div>
         </div>
         <button class="btn btn-primary" onclick="doRegister()">Daftar →</button>
         <div class="login-footer">Sudah punya akun? <a onclick="showLogin()">Masuk</a></div>
@@ -390,9 +400,13 @@
           <label>Username</label>
           <input type="text" id="anggota-username" placeholder="Username login">
         </div>
+        <!-- PASSWORD DENGAN TOGGLE -->
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="anggota-password" placeholder="Password">
+          <div class="password-wrapper">
+            <input type="password" id="anggota-password" placeholder="Password">
+            <i class="far fa-eye toggle-password"></i>
+          </div>
         </div>
       </div>
       <div class="modal-actions">
@@ -465,14 +479,6 @@
       </div>
     </div>
   </div>
-  
-<div class="form-group">
-  <label>Password</label>
-  <div class="password-wrapper">
-    <input type="password" id="login-password" placeholder="Masukkan password">
-    <i class="far fa-eye toggle-password"></i>
-  </div>
-</div>
 
   <!-- Notifikasi Container -->
   <div id="notificationContainer" class="notification-container"></div>
