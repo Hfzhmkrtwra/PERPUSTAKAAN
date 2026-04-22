@@ -779,3 +779,24 @@ tbody tr:last-child td {
     transform: translateX(0);
   }
 }
+
+/* Password toggle */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper input {
+  padding-right: 40px;
+}
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+  transition: color 0.2s;
+}
+.toggle-password:hover {
+  color: var(--accent);
+}

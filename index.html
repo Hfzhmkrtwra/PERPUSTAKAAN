@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +9,8 @@
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  
+
   <!-- LOGIN PAGE -->
   <div id="login-page">
     <div class="login-card">
@@ -40,7 +38,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- REGISTER PAGE -->
   <div id="register-page">
     <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);">
@@ -73,7 +71,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MAIN APP -->
   <div id="app">
     <!-- Sidebar -->
@@ -115,7 +113,7 @@
         <button class="btn-logout" onclick="doLogout()">🚪 Keluar</button>
       </div>
     </div>
-    
+
     <!-- Main Content -->
     <div class="main-content">
       <div class="topbar">
@@ -125,7 +123,7 @@
         </div>
       </div>
       <div class="page-content">
-        
+
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="page active">
           <div class="stats-grid">
@@ -167,7 +165,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- DATA BUKU -->
         <div id="page-buku" class="page">
           <div class="card">
@@ -196,7 +194,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- ANGGOTA -->
         <div id="page-anggota" class="page">
           <div class="card">
@@ -225,7 +223,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- PEMINJAMAN -->
         <div id="page-pinjam" class="page">
           <div class="card">
@@ -254,7 +252,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- PENGEMBALIAN -->
         <div id="page-kembali" class="page">
           <div class="card">
@@ -282,7 +280,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- RIWAYAT TRANSAKSI -->
         <div id="page-transaksi" class="page">
           <div class="card">
@@ -310,11 +308,11 @@
             </div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
-  
+
   <!-- MODALS -->
   <!-- Modal Buku -->
   <div class="modal-overlay" id="modal-buku">
@@ -322,14 +320,27 @@
       <button class="close-btn" onclick="closeModal('modal-buku')">×</button>
       <div class="modal-title" id="modal-buku-title">Tambah Buku</div>
       <input type="hidden" id="buku-id">
-      <div class="form-group"><label>Judul Buku</label><input type="text" id="buku-judul" placeholder="Judul buku"></div>
-      <div class="grid-2">
-        <div class="form-group"><label>Pengarang</label><input type="text" id="buku-pengarang" placeholder="Pengarang"></div>
-        <div class="form-group"><label>Penerbit</label><input type="text" id="buku-penerbit" placeholder="Penerbit"></div>
+      <div class="form-group">
+        <label>Judul Buku</label>
+        <input type="text" id="buku-judul" placeholder="Judul buku">
       </div>
       <div class="grid-2">
-        <div class="form-group"><label>Tahun Terbit</label><input type="number" id="buku-tahun" placeholder="Tahun"></div>
-        <div class="form-group"><label>Kategori</label>
+        <div class="form-group">
+          <label>Pengarang</label>
+          <input type="text" id="buku-pengarang" placeholder="Pengarang">
+        </div>
+        <div class="form-group">
+          <label>Penerbit</label>
+          <input type="text" id="buku-penerbit" placeholder="Penerbit">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tahun Terbit</label>
+          <input type="number" id="buku-tahun" placeholder="Tahun">
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
           <select id="buku-kategori">
             <option>Fiksi</option>
             <option>Non-Fiksi</option>
@@ -343,28 +354,46 @@
           </select>
         </div>
       </div>
-      <div class="form-group"><label>Stok Buku</label><input type="number" id="buku-stok" placeholder="Jumlah stok" min="0"></div>
+      <div class="form-group">
+        <label>Stok Buku</label>
+        <input type="number" id="buku-stok" placeholder="Jumlah stok" min="0">
+      </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('modal-buku')">Batal</button>
         <button class="btn btn-success" onclick="saveBuku()">Simpan</button>
       </div>
     </div>
   </div>
-  
+
   <!-- Modal Anggota -->
   <div class="modal-overlay" id="modal-anggota">
     <div class="modal">
       <button class="close-btn" onclick="closeModal('modal-anggota')">×</button>
       <div class="modal-title" id="modal-anggota-title">Tambah Anggota</div>
       <input type="hidden" id="anggota-id">
-      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="anggota-nama" placeholder="Nama lengkap"></div>
-      <div class="grid-2">
-        <div class="form-group"><label>NIS</label><input type="text" id="anggota-nis" placeholder="No. Induk Siswa"></div>
-        <div class="form-group"><label>Kelas</label><input type="text" id="anggota-kelas" placeholder="XI RPL 1"></div>
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="anggota-nama" placeholder="Nama lengkap">
       </div>
       <div class="grid-2">
-        <div class="form-group"><label>Username</label><input type="text" id="anggota-username" placeholder="Username login"></div>
-        <div class="form-group"><label>Password</label><input type="password" id="anggota-password" placeholder="Password"></div>
+        <div class="form-group">
+          <label>NIS</label>
+          <input type="text" id="anggota-nis" placeholder="No. Induk Siswa">
+        </div>
+        <div class="form-group">
+          <label>Kelas</label>
+          <input type="text" id="anggota-kelas" placeholder="XI RPL 1">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="anggota-username" placeholder="Username login">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="anggota-password" placeholder="Password">
+        </div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('modal-anggota')">Batal</button>
@@ -372,7 +401,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Modal Pinjam -->
   <div class="modal-overlay" id="modal-pinjam">
     <div class="modal">
@@ -390,22 +419,31 @@
           <option value="">-- Pilih Buku --</option>
         </select>
       </div>
-      <div class="form-group"><label>Tanggal Pinjam</label><input type="date" id="pinjam-tgl"></div>
-      <div class="form-group"><label>Tenggat Pengembalian</label><input type="date" id="pinjam-tenggat"></div>
+      <div class="form-group">
+        <label>Tanggal Pinjam</label>
+        <input type="date" id="pinjam-tgl">
+      </div>
+      <div class="form-group">
+        <label>Tenggat Pengembalian</label>
+        <input type="date" id="pinjam-tenggat">
+      </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('modal-pinjam')">Batal</button>
         <button class="btn btn-success" onclick="savePinjam()">Pinjam Buku</button>
       </div>
     </div>
   </div>
-  
+
   <!-- Modal Detail/Kembali -->
   <div class="modal-overlay" id="modal-kembali">
     <div class="modal">
       <button class="close-btn" onclick="closeModal('modal-kembali')">×</button>
       <div class="modal-title">Konfirmasi Pengembalian</div>
       <div id="kembali-detail" style="background:var(--cream);padding:16px;border-radius:8px;margin-bottom:20px;font-size:14px;line-height:2;"></div>
-      <div class="form-group"><label>Tanggal Kembali</label><input type="date" id="kembali-tgl"></div>
+      <div class="form-group">
+        <label>Tanggal Kembali</label>
+        <input type="date" id="kembali-tgl">
+      </div>
       <div id="denda-info" style="display:none;padding:12px;background:#fff3cd;border-radius:8px;margin-top:12px;font-size:14px;"></div>
       <input type="hidden" id="kembali-pinjam-id">
       <div class="modal-actions">
@@ -414,7 +452,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Confirm Delete -->
   <div class="modal-overlay" id="modal-confirm">
     <div class="modal" style="max-width:360px;text-align:center;padding:40px 32px;">
@@ -428,11 +466,18 @@
     </div>
   </div>
   
+<div class="form-group">
+  <label>Password</label>
+  <div class="password-wrapper">
+    <input type="password" id="login-password" placeholder="Masukkan password">
+    <i class="far fa-eye toggle-password"></i>
+  </div>
+</div>
+
   <!-- Notifikasi Container -->
   <div id="notificationContainer" class="notification-container"></div>
-  
+
   <!-- JavaScript -->
   <script type="module" src="main.js"></script>
 </body>
-
 </html>

@@ -163,7 +163,7 @@ async function initSampleData() {
         ];
         for (const b of sampleBuku) await addBuku(b);
     }
-
+    
     const anggotaSnap = await getDocs(anggotaCol);
     if (anggotaSnap.empty) {
         const sampleAnggota = [
@@ -173,7 +173,7 @@ async function initSampleData() {
         ];
         for (const a of sampleAnggota) await addAnggota(a);
     }
-
+    
     await setAdminDefault();
 }
 
@@ -191,21 +191,21 @@ function escapeHtml(text) {
 function showNotification(message, type = 'info') {
     const container = document.getElementById('notificationContainer');
     if (!container) return;
-
+    
     let icon = 'info-circle';
     if (type === 'success') icon = 'check-circle';
     else if (type === 'error') icon = 'exclamation-circle';
     else if (type === 'warning') icon = 'exclamation-triangle';
-
+    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <i class="fas fa-${icon}"></i>
         <span>${escapeHtml(message)}</span>
     `;
-
+    
     container.appendChild(notification);
-
+    
     setTimeout(() => {
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(30px)';
@@ -243,13 +243,13 @@ window.doLogin = async function() {
     const password = document.getElementById('login-password').value;
     const role = getSelectedRole();
     const alertEl = document.getElementById('login-alert');
-
+    
     if (!username || !password) {
         alertEl.innerHTML = '<div class="alert alert-danger">Username dan password wajib diisi.</div>';
         showNotification('Username dan password wajib diisi.', 'error');
         return;
     }
-
+    
     try {
         if (role === 'admin') {
             const admin = await getAdmin();
@@ -287,13 +287,13 @@ window.doRegister = async function() {
     const username = document.getElementById('reg-username').value.trim();
     const password = document.getElementById('reg-password').value;
     const alertEl = document.getElementById('reg-alert');
-
+    
     if (!nama || !nis || !kelas || !username || !password) {
         alertEl.innerHTML = '<div class="alert alert-danger">Semua field wajib diisi.</div>';
         showNotification('Semua field wajib diisi.', 'error');
         return;
     }
-
+    
     try {
         const anggota = await getAnggota();
         if (anggota.find(a => a.username === username)) {
@@ -301,7 +301,7 @@ window.doRegister = async function() {
             showNotification('Username sudah digunakan.', 'error');
             return;
         }
-
+        
         await addAnggota({ nama, nis, kelas, username, password, status: 'Aktif' });
         alertEl.innerHTML = '<div class="alert alert-success">Registrasi berhasil! Silakan login.</div>';
         showNotification('Registrasi berhasil! Silakan login.', 'success');
@@ -345,11 +345,11 @@ function startApp() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('register-page').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-
+    
     document.getElementById('sidebar-username').textContent = currentUser.nama;
     document.getElementById('sidebar-role').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Siswa';
     document.getElementById('user-avatar-text').textContent = currentUser.nama[0].toUpperCase();
-
+    
     if (currentUser.role === 'siswa') {
         document.getElementById('nav-anggota').style.display = 'none';
         document.getElementById('nav-transaksi').style.display = 'none';
@@ -357,7 +357,7 @@ function startApp() {
         document.getElementById('nav-anggota').style.display = '';
         document.getElementById('nav-transaksi').style.display = '';
     }
-
+    
     document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     showPage('dashboard');
     cekPeringatanTenggat(); // async, tidak perlu await karena fire-and-forget
@@ -393,7 +393,7 @@ window.showPage = async function(name) {
         }
     });
     document.getElementById('topbar-title').textContent = pageTitles[name] || name;
-
+    
     if (name === 'dashboard') await renderDashboard();
     if (name === 'buku') await renderBuku();
     if (name === 'anggota') await renderAnggota();
@@ -412,42 +412,57 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 // ==================== RENDER DASHBOARD ====================
 async function renderDashboard() {
     const tbody = document.getElementById('dashboard-pinjam-table');
+    const cardTitle = document.querySelector('#page-dashboard .card-title');
     if (!tbody) return;
-
+    
     try {
         const [buku, anggota, pinjam] = await Promise.all([
             getBuku().catch(() => []),
             getAnggota().catch(() => []),
             getPinjam('Dipinjam').catch(() => [])
         ]);
-
-        const pinjamAktif = pinjam.filter(p => p.status === 'Dipinjam');
+        
+        // Filter hanya yang status Dipinjam
+        let pinjamAktif = pinjam.filter(p => p.status === 'Dipinjam');
+        
+        // Jika user adalah siswa, hanya tampilkan peminjaman miliknya sendiri
+        if (currentUser && currentUser.role === 'siswa') {
+            pinjamAktif = pinjamAktif.filter(p => p.anggotaId === currentUser.id);
+            if (cardTitle) cardTitle.textContent = 'Peminjaman Aktif Saya';
+        } else {
+            if (cardTitle) cardTitle.textContent = 'Peminjaman Aktif';
+        }
+        
         const today = new Date().toISOString().slice(0, 10);
         const terlambat = pinjamAktif.filter(p => p.tenggat < today);
-
+        
+        // Statistik (total buku & anggota tetap global)
         document.getElementById('stat-buku').textContent = buku.length || 0;
         document.getElementById('stat-anggota').textContent = anggota.length || 0;
         document.getElementById('stat-dipinjam').textContent = pinjamAktif.length || 0;
         document.getElementById('stat-terlambat').textContent = terlambat.length || 0;
-
+        
         if (pinjamAktif.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">📭 Tidak ada peminjaman aktif</td></tr>`;
+            const emptyMessage = (currentUser && currentUser.role === 'siswa') ?
+                '📭 Anda belum memiliki peminjaman aktif' :
+                '📭 Tidak ada peminjaman aktif';
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">${emptyMessage}</td></tr>`;
             return;
         }
-
+        
         let rows = '';
         pinjamAktif.forEach((p, i) => {
             const angg = anggota.find(a => a.id === p.anggotaId) || {};
             const bk = buku.find(b => b.id === p.bukuId) || {};
             const late = p.tenggat < today;
             rows += `<tr>
-                <td>${i + 1}</td>
-                <td>${escapeHtml(angg.nama || '-')}</td>
-                <td>${escapeHtml(bk.judul || '-')}</td>
-                <td>${p.tglPinjam || '-'}</td>
-                <td>${p.tenggat || '-'}</td>
-                <td><span class="badge ${late ? 'badge-danger' : 'badge-success'}">${late ? 'Terlambat' : 'Tepat Waktu'}</span></td>
-            </tr>`;
+        <td>${i + 1}</td>
+        <td>${escapeHtml(angg.nama || '-')}</td>
+        <td>${escapeHtml(bk.judul || '-')}</td>
+        <td>${p.tglPinjam || '-'}</td>
+        <td>${p.tenggat || '-'}</td>
+        <td><span class="badge ${late ? 'badge-danger' : 'badge-success'}">${late ? 'Terlambat' : 'Tepat Waktu'}</span></td>
+      </tr>`;
         });
         tbody.innerHTML = rows;
     } catch (error) {
@@ -467,11 +482,11 @@ async function renderBuku() {
             b.kategori.toLowerCase().includes(q)
         );
     }
-
+    
     const isAdmin = currentUser && currentUser.role === 'admin';
     document.getElementById('buku-add-btn').innerHTML = isAdmin ?
         '<button class="btn btn-primary btn-sm" onclick="openBukuModal()">+ Tambah Buku</button>' : '';
-
+    
     let rows = '';
     if (buku.length === 0) {
         rows = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">📭 Tidak ada data buku</td></tr>';
@@ -535,7 +550,7 @@ window.saveBuku = async function() {
         stok: parseInt(document.getElementById('buku-stok').value) || 0,
     };
     if (!data.judul || !data.pengarang) { alert('Judul dan pengarang wajib diisi!'); return; }
-
+    
     if (id) {
         await updateBuku(id, data);
         showNotification('Buku berhasil diperbarui.', 'success');
@@ -566,7 +581,7 @@ async function renderAnggota() {
             a.kelas.toLowerCase().includes(q)
         );
     }
-
+    
     let rows = '';
     if (anggota.length === 0) {
         rows = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">📭 Tidak ada data anggota</td></tr>';
@@ -613,7 +628,7 @@ window.saveAnggota = async function() {
         status: 'Aktif',
     };
     if (!data.nama || !data.nis || !data.username) { alert('Nama, NIS, dan username wajib diisi!'); return; }
-
+    
     if (id) {
         if (!data.password) delete data.password;
         await updateAnggota(id, data);
@@ -643,7 +658,7 @@ async function renderPinjam() {
     const anggota = await getAnggota();
     const buku = await getBuku();
     const today = new Date().toISOString().slice(0, 10);
-
+    
     let pinjam = await getPinjam('Dipinjam');
     if (currentUser.role === 'siswa') {
         pinjam = pinjam.filter(p => p.anggotaId === currentUser.id);
@@ -655,10 +670,10 @@ async function renderPinjam() {
             return (a && a.nama.toLowerCase().includes(q)) || (b && b.judul.toLowerCase().includes(q));
         });
     }
-
+    
     const isAdmin = currentUser && currentUser.role === 'admin';
     document.getElementById('pinjam-add-btn').innerHTML = `<button class="btn btn-primary btn-sm" onclick="openPinjamModal()">+ Pinjam Buku</button>`;
-
+    
     let rows = '';
     if (pinjam.length === 0) {
         rows = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">📭 Tidak ada peminjaman aktif</td></tr>';
@@ -687,7 +702,7 @@ window.openPinjamModal = async function() {
     const today = new Date().toISOString().slice(0, 10);
     const deadline = new Date();
     deadline.setDate(deadline.getDate() + 7);
-
+    
     const anggotaGrp = document.getElementById('pinjam-anggota-group');
     if (currentUser.role === 'siswa') {
         anggotaGrp.style.display = 'none';
@@ -697,14 +712,14 @@ window.openPinjamModal = async function() {
         anggota.forEach(a => opts += `<option value="${a.id}">${a.nama} (${a.kelas})</option>`);
         document.getElementById('pinjam-anggota-id').innerHTML = opts;
     }
-
+    
     let bOpts = '<option value="">-- Pilih Buku --</option>';
     buku.forEach(b => bOpts += `<option value="${b.id}">${b.judul} [Stok: ${b.stok}]</option>`);
     document.getElementById('pinjam-buku-id').innerHTML = bOpts;
-
+    
     document.getElementById('pinjam-tgl').value = today;
     document.getElementById('pinjam-tenggat').value = deadline.toISOString().slice(0, 10);
-
+    
     openModal('modal-pinjam');
 };
 
@@ -715,16 +730,16 @@ window.savePinjam = async function() {
     const bukuId = document.getElementById('pinjam-buku-id').value;
     const tglPinjam = document.getElementById('pinjam-tgl').value;
     const tenggat = document.getElementById('pinjam-tenggat').value;
-
+    
     if (!anggotaId || !bukuId || !tglPinjam || !tenggat) {
         alert('Semua field wajib diisi!');
         return;
     }
-
+    
     const buku = await getBuku();
     const bk = buku.find(b => b.id === bukuId);
     if (!bk || bk.stok < 1) { alert('Stok buku habis!'); return; }
-
+    
     await updateBuku(bukuId, { ...bk, stok: bk.stok - 1 });
     await addPinjam({ anggotaId, bukuId, tglPinjam, tenggat });
     closeModal('modal-pinjam');
@@ -755,7 +770,7 @@ async function renderKembali() {
     const anggota = await getAnggota();
     const buku = await getBuku();
     const today = new Date().toISOString().slice(0, 10);
-
+    
     let pinjam = await getPinjam('Dipinjam');
     if (currentUser.role === 'siswa') {
         pinjam = pinjam.filter(p => p.anggotaId === currentUser.id);
@@ -767,7 +782,7 @@ async function renderKembali() {
             return (a && a.nama.toLowerCase().includes(q)) || (b && b.judul.toLowerCase().includes(q));
         });
     }
-
+    
     let rows = '';
     if (pinjam.length === 0) {
         rows = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">✅ Tidak ada buku yang perlu dikembalikan</td></tr>';
@@ -800,7 +815,7 @@ window.openKembaliModal = async function(pinjamId) {
     const a = anggota.find(x => x.id === p.anggotaId);
     const b = buku.find(x => x.id === p.bukuId);
     const today = new Date().toISOString().slice(0, 10);
-
+    
     document.getElementById('kembali-pinjam-id').value = pinjamId;
     document.getElementById('kembali-tgl').value = today;
     document.getElementById('kembali-detail').innerHTML = `
@@ -809,7 +824,7 @@ window.openKembaliModal = async function(pinjamId) {
         <b>Tgl Pinjam:</b> ${p.tglPinjam}<br>
         <b>Tenggat:</b> ${p.tenggat}
     `;
-
+    
     hitungDenda();
     openModal('modal-kembali');
     document.getElementById('kembali-tgl').oninput = hitungDenda;
@@ -821,7 +836,7 @@ function hitungDenda() {
         const p = pinjamList.find(x => x.id === pinjamId);
         const tglKembali = document.getElementById('kembali-tgl').value;
         if (!p || !tglKembali) return;
-
+        
         const late = tglKembali > p.tenggat;
         const days = late ? Math.floor((new Date(tglKembali) - new Date(p.tenggat)) / 86400000) : 0;
         const denda = days * 1000;
@@ -839,21 +854,21 @@ window.prosesPengembalian = async function() {
     const pinjamId = document.getElementById('kembali-pinjam-id').value;
     const tglKembali = document.getElementById('kembali-tgl').value;
     if (!tglKembali) { alert('Tanggal kembali wajib diisi!'); return; }
-
+    
     const pinjamList = await getPinjam();
     const p = pinjamList.find(x => x.id === pinjamId);
     if (!p) return;
-
+    
     const late = tglKembali > p.tenggat;
     const days = late ? Math.floor((new Date(tglKembali) - new Date(p.tenggat)) / 86400000) : 0;
     const denda = days * 1000;
-
+    
     await updatePinjam(pinjamId, { ...p, status: 'Dikembalikan', tglKembali, denda });
-
+    
     const buku = await getBuku();
     const bk = buku.find(b => b.id === p.bukuId);
     if (bk) await updateBuku(p.bukuId, { ...bk, stok: bk.stok + 1 });
-
+    
     await addTransaksi({
         anggotaId: p.anggotaId,
         bukuId: p.bukuId,
@@ -863,7 +878,7 @@ window.prosesPengembalian = async function() {
         denda,
         status: late ? 'Terlambat' : 'Tepat Waktu',
     });
-
+    
     closeModal('modal-kembali');
     await renderKembali();
     showNotification('Buku berhasil dikembalikan.', 'success');
@@ -875,7 +890,7 @@ async function renderTransaksi() {
     const anggota = await getAnggota();
     const buku = await getBuku();
     let transaksi = await getTransaksi();
-
+    
     if (q) {
         transaksi = transaksi.filter(t => {
             const a = anggota.find(x => x.id === t.anggotaId);
@@ -883,7 +898,7 @@ async function renderTransaksi() {
             return (a && a.nama.toLowerCase().includes(q)) || (b && b.judul.toLowerCase().includes(q));
         });
     }
-
+    
     let rows = '';
     if (transaksi.length === 0) {
         rows = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">📭 Belum ada riwayat transaksi</td></tr>';
@@ -927,18 +942,18 @@ window.pinjamBukuLangsung = async function(bukuId) {
         alert('Anda harus login sebagai siswa.');
         return;
     }
-
+    
     const buku = (await getBuku()).find(b => b.id === bukuId);
     if (!buku) {
         alert('Buku tidak ditemukan.');
         return;
     }
-
+    
     if (buku.stok < 1) {
         alert('Stok buku habis, tidak dapat dipinjam.');
         return;
     }
-
+    
     await openPinjamModal();
     document.getElementById('pinjam-buku-id').value = bukuId;
 };
@@ -948,15 +963,15 @@ window.kembalikanBukuLangsung = async function(bukuId) {
         alert('Anda harus login sebagai siswa.');
         return;
     }
-
+    
     const pinjamList = await getPinjam('Dipinjam');
     const peminjaman = pinjamList.find(p => p.anggotaId === currentUser.id && p.bukuId === bukuId);
-
+    
     if (!peminjaman) {
         alert('Anda tidak sedang meminjam buku ini.');
         return;
     }
-
+    
     await openKembaliModal(peminjaman.id);
 };
 
@@ -964,16 +979,16 @@ window.kembalikanBukuLangsung = async function(bukuId) {
 document.addEventListener('click', function(e) {
     const toggleIcon = e.target.closest('.toggle-password');
     if (!toggleIcon) return;
-
+    
     const wrapper = toggleIcon.closest('.password-wrapper');
     if (!wrapper) return;
-
+    
     const input = wrapper.querySelector('input');
     if (!input) return;
-
+    
     const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
     input.setAttribute('type', type);
-
+    
     toggleIcon.classList.toggle('fa-eye');
     toggleIcon.classList.toggle('fa-eye-slash');
 });
