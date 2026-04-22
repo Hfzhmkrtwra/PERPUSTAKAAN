@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    body { background: var(--ink); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-    .form-container { max-width: 500px; width: 100%; }
+    body {
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    
+    .form-container {
+      max-width: 500px;
+      width: 100%;
+    }
   </style>
 </head>
+
 <body>
   <div class="form-container">
     <div class="login-card" style="max-width:100%;">
@@ -30,9 +43,15 @@
           <div class="form-group"><label>Tahun Terbit</label><input type="number" id="tahun" required></div>
           <div class="form-group"><label>Kategori</label>
             <select id="kategori">
-              <option>Fiksi</option><option>Non-Fiksi</option><option>Sains</option>
-              <option>Matematika</option><option>Sejarah</option><option>Teknologi</option>
-              <option>Bahasa</option><option>Agama</option><option>Lainnya</option>
+              <option>Fiksi</option>
+              <option>Non-Fiksi</option>
+              <option>Sains</option>
+              <option>Matematika</option>
+              <option>Sejarah</option>
+              <option>Teknologi</option>
+              <option>Bahasa</option>
+              <option>Agama</option>
+              <option>Lainnya</option>
             </select>
           </div>
         </div>
@@ -47,33 +66,34 @@
       </form>
     </div>
   </div>
-
+  
   <script>
     // Fungsi helper localStorage (sama dengan di main.js)
     const DB = {
-      get: (key) => JSON.parse(localStorage.getItem('lib_'+key) || '[]'),
-      set: (key, val) => localStorage.setItem('lib_'+key, JSON.stringify(val)),
+      get: (key) => JSON.parse(localStorage.getItem('lib_' + key) || '[]'),
+      set: (key, val) => localStorage.setItem('lib_' + key, JSON.stringify(val)),
     };
+    
     function nextId(arr) {
-      return arr.length === 0 ? 1 : Math.max(...arr.map(x=>x.id)) + 1;
+      return arr.length === 0 ? 1 : Math.max(...arr.map(x => x.id)) + 1;
     }
-
+    
     document.getElementById('form-tambah-buku').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const judul = document.getElementById('judul').value.trim();
-      const pengarang = document.getElementById('pengarang').value.trim();
-      const penerbit = document.getElementById('penerbit').value.trim();
-      const tahun = parseInt(document.getElementById('tahun').value) || 0;
-      const kategori = document.getElementById('kategori').value;
-      const stok = parseInt(document.getElementById('stok').value) || 0;
-
-      if (!judul || !pengarang) {
-        document.getElementById('alert').innerHTML = '<div class="alert alert-danger">Judul dan pengarang wajib diisi!</div>';
-        return;
-      }
-
-      let buku = DB.get('buku');
-      buku.push({ <!DOCTYPE html>
+          e.preventDefault();
+          const judul = document.getElementById('judul').value.trim();
+          const pengarang = document.getElementById('pengarang').value.trim();
+          const penerbit = document.getElementById('penerbit').value.trim();
+          const tahun = parseInt(document.getElementById('tahun').value) || 0;
+          const kategori = document.getElementById('kategori').value;
+          const stok = parseInt(document.getElementById('stok').value) || 0;
+          
+          if (!judul || !pengarang) {
+            document.getElementById('alert').innerHTML = '<div class="alert alert-danger">Judul dan pengarang wajib diisi!</div>';
+            return;
+          }
+          
+          let buku = DB.get('buku');
+          buku.push({ <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -144,276 +164,287 @@
   </style>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+  </script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-</head>
-<body>
-<div class="form-page">
-
-  <!-- Header -->
-  <div class="form-page-header">
-    <a class="back-btn" href="index.html">← Kembali</a>
-    <div class="form-logo">📚 Pustaka<span>Digital</span></div>
-  </div>
-
-  <h2 style="font-family:'Playfair Display',serif;font-size:26px;margin-bottom:6px;">Tambah Data Baru</h2>
-  <p style="color:var(--muted);font-size:13.5px;margin-bottom:24px;">Pilih jenis data yang ingin ditambahkan.</p>
-
-  <!-- Tab pills -->
-  <div class="tab-pills">
-    <button class="tab-pill active" onclick="switchTab('buku',this)">📖 Buku</button>
-    <button class="tab-pill"        onclick="switchTab('anggota',this)">👤 Anggota</button>
-    <button class="tab-pill"        onclick="switchTab('pinjam',this)">📤 Peminjaman</button>
-  </div>
-
-  <!-- ── FORM TAMBAH BUKU ── -->
-  <div class="form-section active" id="tab-buku">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📖 Tambah Buku Baru</div>
+  </head>
+  
+  <body>
+    <div class="form-page">
+      
+      <!-- Header -->
+      <div class="form-page-header">
+        <a class="back-btn" href="index.html">← Kembali</a>
+        <div class="form-logo">📚 Pustaka<span>Digital</span></div>
       </div>
-      <div id="success-buku" class="success-banner">✅ Buku berhasil ditambahkan!</div>
-      <div class="form-group">
-        <label>Judul Buku <span style="color:var(--accent)">*</span></label>
-        <input type="text" id="tb-judul" placeholder="Masukkan judul buku lengkap">
+      
+      <h2 style="font-family:'Playfair Display',serif;font-size:26px;margin-bottom:6px;">Tambah Data Baru</h2>
+      <p style="color:var(--muted);font-size:13.5px;margin-bottom:24px;">Pilih jenis data yang ingin ditambahkan.</p>
+      
+      <!-- Tab pills -->
+      <div class="tab-pills">
+        <button class="tab-pill active" onclick="switchTab('buku',this)">📖 Buku</button>
+        <button class="tab-pill" onclick="switchTab('anggota',this)">👤 Anggota</button>
+        <button class="tab-pill" onclick="switchTab('pinjam',this)">📤 Peminjaman</button>
       </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Pengarang <span style="color:var(--accent)">*</span></label>
-          <input type="text" id="tb-pengarang" placeholder="Nama pengarang">
-        </div>
-        <div class="form-group">
-          <label>Penerbit</label>
-          <input type="text" id="tb-penerbit" placeholder="Nama penerbit">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Tahun Terbit</label>
-          <input type="number" id="tb-tahun" placeholder="2024" min="1900" max="2099">
-        </div>
-        <div class="form-group">
-          <label>Kategori</label>
-          <select id="tb-kategori">
-            <option>Fiksi</option><option>Non-Fiksi</option><option>Sains</option>
-            <option>Matematika</option><option>Sejarah</option><option>Teknologi</option>
-            <option>Bahasa</option><option>Agama</option><option>Lainnya</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="max-width:200px;">
-        <label>Stok Buku <span style="color:var(--accent)">*</span></label>
-        <input type="number" id="tb-stok" placeholder="0" min="0" value="1">
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
-        <button class="btn btn-secondary" onclick="resetForm('buku')">Reset</button>
-        <button class="btn btn-success"   onclick="tambahBuku()">💾 Simpan Buku</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── FORM TAMBAH ANGGOTA ── -->
-  <div class="form-section" id="tab-anggota">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">👤 Tambah Anggota Baru</div>
-      </div>
-      <div id="success-anggota" class="success-banner">✅ Anggota berhasil ditambahkan!</div>
-      <div class="form-group">
-        <label>Nama Lengkap <span style="color:var(--accent)">*</span></label>
-        <input type="text" id="ta-nama" placeholder="Nama lengkap siswa">
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>NIS / No. Induk <span style="color:var(--accent)">*</span></label>
-          <input type="text" id="ta-nis" placeholder="20240001">
-        </div>
-        <div class="form-group">
-          <label>Kelas <span style="color:var(--accent)">*</span></label>
-          <input type="text" id="ta-kelas" placeholder="XI RPL 1">
+      
+      <!-- ── FORM TAMBAH BUKU ── -->
+      <div class="form-section active" id="tab-buku">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📖 Tambah Buku Baru</div>
+          </div>
+          <div id="success-buku" class="success-banner">✅ Buku berhasil ditambahkan!</div>
+          <div class="form-group">
+            <label>Judul Buku <span style="color:var(--accent)">*</span></label>
+            <input type="text" id="tb-judul" placeholder="Masukkan judul buku lengkap">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Pengarang <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="tb-pengarang" placeholder="Nama pengarang">
+            </div>
+            <div class="form-group">
+              <label>Penerbit</label>
+              <input type="text" id="tb-penerbit" placeholder="Nama penerbit">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Tahun Terbit</label>
+              <input type="number" id="tb-tahun" placeholder="2024" min="1900" max="2099">
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <select id="tb-kategori">
+                <option>Fiksi</option>
+                <option>Non-Fiksi</option>
+                <option>Sains</option>
+                <option>Matematika</option>
+                <option>Sejarah</option>
+                <option>Teknologi</option>
+                <option>Bahasa</option>
+                <option>Agama</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="max-width:200px;">
+            <label>Stok Buku <span style="color:var(--accent)">*</span></label>
+            <input type="number" id="tb-stok" placeholder="0" min="0" value="1">
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+            <button class="btn btn-secondary" onclick="resetForm('buku')">Reset</button>
+            <button class="btn btn-success" onclick="tambahBuku()">💾 Simpan Buku</button>
+          </div>
         </div>
       </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Username <span style="color:var(--accent)">*</span></label>
-          <input type="text" id="ta-username" placeholder="username unik">
-        </div>
-        <div class="form-group">
-          <label>Password <span style="color:var(--accent)">*</span></label>
-          <input type="password" id="ta-password" placeholder="minimal 6 karakter">
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
-        <button class="btn btn-secondary" onclick="resetForm('anggota')">Reset</button>
-        <button class="btn btn-success"   onclick="tambahAnggota()">💾 Simpan Anggota</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── FORM TAMBAH PEMINJAMAN ── -->
-  <div class="form-section" id="tab-pinjam">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📤 Tambah Peminjaman Baru</div>
-      </div>
-      <div id="success-pinjam" class="success-banner">✅ Peminjaman berhasil dicatat!</div>
-      <div class="form-group">
-        <label>Anggota / Peminjam <span style="color:var(--accent)">*</span></label>
-        <select id="tp-anggota">
-          <option value="">-- Pilih Anggota --</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Buku yang Dipinjam <span style="color:var(--accent)">*</span></label>
-        <select id="tp-buku">
-          <option value="">-- Pilih Buku (hanya stok tersedia) --</option>
-        </select>
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Tanggal Pinjam <span style="color:var(--accent)">*</span></label>
-          <input type="date" id="tp-tgl">
-        </div>
-        <div class="form-group">
-          <label>Tenggat Pengembalian <span style="color:var(--accent)">*</span></label>
-          <input type="date" id="tp-tenggat">
+      
+      <!-- ── FORM TAMBAH ANGGOTA ── -->
+      <div class="form-section" id="tab-anggota">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👤 Tambah Anggota Baru</div>
+          </div>
+          <div id="success-anggota" class="success-banner">✅ Anggota berhasil ditambahkan!</div>
+          <div class="form-group">
+            <label>Nama Lengkap <span style="color:var(--accent)">*</span></label>
+            <input type="text" id="ta-nama" placeholder="Nama lengkap siswa">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>NIS / No. Induk <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="ta-nis" placeholder="20240001">
+            </div>
+            <div class="form-group">
+              <label>Kelas <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="ta-kelas" placeholder="XI RPL 1">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Username <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="ta-username" placeholder="username unik">
+            </div>
+            <div class="form-group">
+              <label>Password <span style="color:var(--accent)">*</span></label>
+              <input type="password" id="ta-password" placeholder="minimal 6 karakter">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+            <button class="btn btn-secondary" onclick="resetForm('anggota')">Reset</button>
+            <button class="btn btn-success" onclick="tambahAnggota()">💾 Simpan Anggota</button>
+          </div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
-        <button class="btn btn-secondary" onclick="resetForm('pinjam')">Reset</button>
-        <button class="btn btn-success"   onclick="tambahPinjam()">📤 Catat Peminjaman</button>
+      
+      <!-- ── FORM TAMBAH PEMINJAMAN ── -->
+      <div class="form-section" id="tab-pinjam">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📤 Tambah Peminjaman Baru</div>
+          </div>
+          <div id="success-pinjam" class="success-banner">✅ Peminjaman berhasil dicatat!</div>
+          <div class="form-group">
+            <label>Anggota / Peminjam <span style="color:var(--accent)">*</span></label>
+            <select id="tp-anggota">
+              <option value="">-- Pilih Anggota --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Buku yang Dipinjam <span style="color:var(--accent)">*</span></label>
+            <select id="tp-buku">
+              <option value="">-- Pilih Buku (hanya stok tersedia) --</option>
+            </select>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Tanggal Pinjam <span style="color:var(--accent)">*</span></label>
+              <input type="date" id="tp-tgl">
+            </div>
+            <div class="form-group">
+              <label>Tenggat Pengembalian <span style="color:var(--accent)">*</span></label>
+              <input type="date" id="tp-tenggat">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+            <button class="btn btn-secondary" onclick="resetForm('pinjam')">Reset</button>
+            <button class="btn btn-success" onclick="tambahPinjam()">📤 Catat Peminjaman</button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-
-</div><!-- /.form-page -->
-
-<script src="main.js"></script>
-<script>
-// Stand-alone page: init Firebase + load dropdowns
-document.addEventListener('DOMContentLoaded', async () => {
-  // Init default data (from main.js)
-  await initDefaultData();
-
-  // Set today & +7 for pinjam form
-  const t = new Date().toISOString().slice(0,10);
-  const t7 = new Date(); t7.setDate(t7.getDate()+7);
-  document.getElementById('tp-tgl').value     = t;
-  document.getElementById('tp-tenggat').value = t7.toISOString().slice(0,10);
-
-  // Load selects
-  await loadPinjamDropdowns();
-});
-
-async function loadPinjamDropdowns() {
-  const [aSnap, bSnap] = await Promise.all([
-    REF.anggota().once('value'),
-    REF.buku().once('value'),
-  ]);
-  const anggota = snapToArr(aSnap);
-  const buku    = snapToArr(bSnap).filter(b => b.stok > 0);
-
-  let aOpts = '<option value="">-- Pilih Anggota --</option>';
-  anggota.forEach(a => aOpts += `<option value="${a._key}">${a.nama} (${a.kelas})</option>`);
-  document.getElementById('tp-anggota').innerHTML = aOpts;
-
-  let bOpts = '<option value="">-- Pilih Buku --</option>';
-  buku.forEach(b => bOpts += `<option value="${b._key}">${b.judul} [Stok: ${b.stok}]</option>`);
-  document.getElementById('tp-buku').innerHTML = bOpts;
-}
-
-// ── Tab switching ──────────────────────────────────────────
-function switchTab(name, el) {
-  document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'pinjam') loadPinjamDropdowns();
-}
-
-// ── Reset ──────────────────────────────────────────────────
-function resetForm(type) {
-  if (type === 'buku') {
-    ['tb-judul','tb-pengarang','tb-penerbit','tb-tahun'].forEach(id => document.getElementById(id).value='');
-    document.getElementById('tb-stok').value = '1';
-  } else if (type === 'anggota') {
-    ['ta-nama','ta-nis','ta-kelas','ta-username','ta-password'].forEach(id => document.getElementById(id).value='');
-  } else {
-    document.getElementById('tp-anggota').value = '';
-    document.getElementById('tp-buku').value    = '';
-  }
-}
-
-// ── Tambah Buku ────────────────────────────────────────────
-async function tambahBuku() {
-  const data = {
-    judul:     document.getElementById('tb-judul').value.trim(),
-    pengarang: document.getElementById('tb-pengarang').value.trim(),
-    penerbit:  document.getElementById('tb-penerbit').value.trim(),
-    tahun:     parseInt(document.getElementById('tb-tahun').value) || 0,
-    kategori:  document.getElementById('tb-kategori').value,
-    stok:      parseInt(document.getElementById('tb-stok').value) || 0,
-  };
-  if (!data.judul || !data.pengarang) { alert('Judul dan pengarang wajib diisi!'); return; }
-  await REF.buku().push(data);
-  showSuccess('buku');
-  resetForm('buku');
-}
-
-// ── Tambah Anggota ─────────────────────────────────────────
-async function tambahAnggota() {
-  const nama     = document.getElementById('ta-nama').value.trim();
-  const nis      = document.getElementById('ta-nis').value.trim();
-  const kelas    = document.getElementById('ta-kelas').value.trim();
-  const username = document.getElementById('ta-username').value.trim();
-  const password = document.getElementById('ta-password').value;
-  if (!nama || !nis || !kelas || !username || !password) { alert('Semua field wajib diisi!'); return; }
-
-  // Cek username unik
-  const snap = await REF.anggota().orderByChild('username').equalTo(username).once('value');
-  if (snap.exists()) { alert('Username sudah digunakan!'); return; }
-
-  await REF.anggota().push({ nama, nis, kelas, username, password, status:'Aktif' });
-  showSuccess('anggota');
-  resetForm('anggota');
-}
-
-// ── Tambah Peminjaman ──────────────────────────────────────
-async function tambahPinjam() {
-  const anggotaKey = document.getElementById('tp-anggota').value;
-  const bukuKey    = document.getElementById('tp-buku').value;
-  const tglPinjam  = document.getElementById('tp-tgl').value;
-  const tenggat    = document.getElementById('tp-tenggat').value;
-  if (!anggotaKey || !bukuKey || !tglPinjam || !tenggat) { alert('Semua field wajib diisi!'); return; }
-
-  const bSnap = await REF.buku().child(bukuKey).once('value');
-  const b     = bSnap.val();
-  if (!b || b.stok < 1) { alert('Stok buku habis!'); return; }
-
-  await REF.buku().child(bukuKey).update({ stok: b.stok - 1 });
-  await REF.pinjam().push({ anggotaKey, bukuKey, tglPinjam, tenggat, status:'Dipinjam' });
-
-  showSuccess('pinjam');
-  await loadPinjamDropdowns();
-  document.getElementById('tp-anggota').value = '';
-  document.getElementById('tp-buku').value    = '';
-}
-
-function showSuccess(type) {
-  const el = document.getElementById('success-' + type);
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
-</script>
-</body>
+      
+    </div><!-- /.form-page -->
+    
+    <script src="main.js"></script>
+    <script>
+      // Stand-alone page: init Firebase + load dropdowns
+      document.addEventListener('DOMContentLoaded', async () => {
+        // Init default data (from main.js)
+        await initDefaultData();
+        
+        // Set today & +7 for pinjam form
+        const t = new Date().toISOString().slice(0, 10);
+        const t7 = new Date();
+        t7.setDate(t7.getDate() + 7);
+        document.getElementById('tp-tgl').value = t;
+        document.getElementById('tp-tenggat').value = t7.toISOString().slice(0, 10);
+        
+        // Load selects
+        await loadPinjamDropdowns();
+      });
+      
+      async function loadPinjamDropdowns() {
+        const [aSnap, bSnap] = await Promise.all([
+          REF.anggota().once('value'),
+          REF.buku().once('value'),
+        ]);
+        const anggota = snapToArr(aSnap);
+        const buku = snapToArr(bSnap).filter(b => b.stok > 0);
+        
+        let aOpts = '<option value="">-- Pilih Anggota --</option>';
+        anggota.forEach(a => aOpts += `<option value="${a._key}">${a.nama} (${a.kelas})</option>`);
+        document.getElementById('tp-anggota').innerHTML = aOpts;
+        
+        let bOpts = '<option value="">-- Pilih Buku --</option>';
+        buku.forEach(b => bOpts += `<option value="${b._key}">${b.judul} [Stok: ${b.stok}]</option>`);
+        document.getElementById('tp-buku').innerHTML = bOpts;
+      }
+      
+      // ── Tab switching ──────────────────────────────────────────
+      function switchTab(name, el) {
+        document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+        if (name === 'pinjam') loadPinjamDropdowns();
+      }
+      
+      // ── Reset ──────────────────────────────────────────────────
+      function resetForm(type) {
+        if (type === 'buku') {
+          ['tb-judul', 'tb-pengarang', 'tb-penerbit', 'tb-tahun'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('tb-stok').value = '1';
+        } else if (type === 'anggota') {
+          ['ta-nama', 'ta-nis', 'ta-kelas', 'ta-username', 'ta-password'].forEach(id => document.getElementById(id).value = '');
+        } else {
+          document.getElementById('tp-anggota').value = '';
+          document.getElementById('tp-buku').value = '';
+        }
+      }
+      
+      // ── Tambah Buku ────────────────────────────────────────────
+      async function tambahBuku() {
+        const data = {
+          judul: document.getElementById('tb-judul').value.trim(),
+          pengarang: document.getElementById('tb-pengarang').value.trim(),
+          penerbit: document.getElementById('tb-penerbit').value.trim(),
+          tahun: parseInt(document.getElementById('tb-tahun').value) || 0,
+          kategori: document.getElementById('tb-kategori').value,
+          stok: parseInt(document.getElementById('tb-stok').value) || 0,
+        };
+        if (!data.judul || !data.pengarang) { alert('Judul dan pengarang wajib diisi!'); return; }
+        await REF.buku().push(data);
+        showSuccess('buku');
+        resetForm('buku');
+      }
+      
+      // ── Tambah Anggota ─────────────────────────────────────────
+      async function tambahAnggota() {
+        const nama = document.getElementById('ta-nama').value.trim();
+        const nis = document.getElementById('ta-nis').value.trim();
+        const kelas = document.getElementById('ta-kelas').value.trim();
+        const username = document.getElementById('ta-username').value.trim();
+        const password = document.getElementById('ta-password').value;
+        if (!nama || !nis || !kelas || !username || !password) { alert('Semua field wajib diisi!'); return; }
+        
+        // Cek username unik
+        const snap = await REF.anggota().orderByChild('username').equalTo(username).once('value');
+        if (snap.exists()) { alert('Username sudah digunakan!'); return; }
+        
+        await REF.anggota().push({ nama, nis, kelas, username, password, status: 'Aktif' });
+        showSuccess('anggota');
+        resetForm('anggota');
+      }
+      
+      // ── Tambah Peminjaman ──────────────────────────────────────
+      async function tambahPinjam() {
+        const anggotaKey = document.getElementById('tp-anggota').value;
+        const bukuKey = document.getElementById('tp-buku').value;
+        const tglPinjam = document.getElementById('tp-tgl').value;
+        const tenggat = document.getElementById('tp-tenggat').value;
+        if (!anggotaKey || !bukuKey || !tglPinjam || !tenggat) { alert('Semua field wajib diisi!'); return; }
+        
+        const bSnap = await REF.buku().child(bukuKey).once('value');
+        const b = bSnap.val();
+        if (!b || b.stok < 1) { alert('Stok buku habis!'); return; }
+        
+        await REF.buku().child(bukuKey).update({ stok: b.stok - 1 });
+        await REF.pinjam().push({ anggotaKey, bukuKey, tglPinjam, tenggat, status: 'Dipinjam' });
+        
+        showSuccess('pinjam');
+        await loadPinjamDropdowns();
+        document.getElementById('tp-anggota').value = '';
+        document.getElementById('tp-buku').value = '';
+      }
+      
+      function showSuccess(type) {
+        const el = document.getElementById('success-' + type);
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 3000);
+      }
+    </script>
+  </body>
+  
 </html>
 : nextId(buku), judul, pengarang, penerbit, tahun, kategori, stok });
-      DB.set('buku', buku);
+DB.set('buku', buku);
 
-      document.getElementById('alert').innerHTML = '<div class="alert alert-success">Buku berhasil ditambahkan!</div>';
-      this.reset();
-      setTimeout(() => location.href = 'index.html', 1500);
-    });
-  </script>
+document.getElementById('alert').innerHTML = '<div class="alert alert-success">Buku berhasil ditambahkan!</div>';
+this.reset();
+setTimeout(() => location.href = 'index.html', 1500);
+});
+</script>
 </body>
+
 </html>

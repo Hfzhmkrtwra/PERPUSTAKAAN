@@ -188,6 +188,31 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    else if (type === 'error') icon = 'exclamation-circle';
+    else if (type === 'warning') icon = 'exclamation-triangle';
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${icon}"></i>
+        <span>${escapeHtml(message)}</span>
+    `;
+
+    container.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(30px)';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
 // ==================== STATE APLIKASI ====================
 let currentUser = null;
 
@@ -221,6 +246,7 @@ window.doLogin = async function() {
 
     if (!username || !password) {
         alertEl.innerHTML = '<div class="alert alert-danger">Username dan password wajib diisi.</div>';
+        showNotification('Username dan password wajib diisi.', 'error');
         return;
     }
 
@@ -230,8 +256,10 @@ window.doLogin = async function() {
             if (admin && admin.username === username && admin.password === password) {
                 currentUser = { role: 'admin', nama: admin.nama, username };
                 startApp();
+                showNotification(`Selamat datang, ${admin.nama}!`, 'success');
             } else {
                 alertEl.innerHTML = '<div class="alert alert-danger">Username atau password salah.</div>';
+                showNotification('Login gagal: Username atau password salah.', 'error');
             }
         } else {
             const anggota = await getAnggota();
@@ -239,13 +267,16 @@ window.doLogin = async function() {
             if (found) {
                 currentUser = { role: 'siswa', nama: found.nama, username, id: found.id };
                 startApp();
+                showNotification(`Halo, ${found.nama}!`, 'success');
             } else {
                 alertEl.innerHTML = '<div class="alert alert-danger">Username atau password salah.</div>';
+                showNotification('Login gagal: Username atau password salah.', 'error');
             }
         }
     } catch (error) {
         console.error(error);
         alertEl.innerHTML = '<div class="alert alert-danger">Terjadi kesalahan saat login.</div>';
+        showNotification('Terjadi kesalahan saat login.', 'error');
     }
 };
 
@@ -259,6 +290,7 @@ window.doRegister = async function() {
 
     if (!nama || !nis || !kelas || !username || !password) {
         alertEl.innerHTML = '<div class="alert alert-danger">Semua field wajib diisi.</div>';
+        showNotification('Semua field wajib diisi.', 'error');
         return;
     }
 
@@ -266,15 +298,18 @@ window.doRegister = async function() {
         const anggota = await getAnggota();
         if (anggota.find(a => a.username === username)) {
             alertEl.innerHTML = '<div class="alert alert-danger">Username sudah digunakan.</div>';
+            showNotification('Username sudah digunakan.', 'error');
             return;
         }
 
         await addAnggota({ nama, nis, kelas, username, password, status: 'Aktif' });
         alertEl.innerHTML = '<div class="alert alert-success">Registrasi berhasil! Silakan login.</div>';
+        showNotification('Registrasi berhasil! Silakan login.', 'success');
         setTimeout(showLogin, 1500);
     } catch (error) {
         console.error(error);
         alertEl.innerHTML = '<div class="alert alert-danger">Gagal mendaftar.</div>';
+        showNotification('Gagal mendaftar.', 'error');
     }
 };
 
@@ -288,6 +323,23 @@ window.showLogin = function() {
     document.getElementById('register-page').style.display = 'none';
     document.getElementById('login-alert').innerHTML = '';
 };
+
+async function cekPeringatanTenggat() {
+    if (currentUser.role !== 'siswa') return;
+    const pinjamAktif = await getPinjam('Dipinjam');
+    const myPinjam = pinjamAktif.filter(p => p.anggotaId === currentUser.id);
+    const today = new Date().toISOString().slice(0, 10);
+    const mendekati = myPinjam.filter(p => {
+        const selisih = Math.floor((new Date(p.tenggat) - new Date(today)) / 86400000);
+        return selisih >= 0 && selisih <= 2;
+    });
+    const terlambat = myPinjam.filter(p => p.tenggat < today);
+    if (terlambat.length > 0) {
+        showNotification(`Anda memiliki ${terlambat.length} buku yang terlambat dikembalikan!`, 'warning');
+    } else if (mendekati.length > 0) {
+        showNotification(`Peringatan: ${mendekati.length} buku mendekati tenggat pengembalian.`, 'warning');
+    }
+}
 
 function startApp() {
     document.getElementById('login-page').style.display = 'none';
@@ -308,6 +360,7 @@ function startApp() {
 
     document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     showPage('dashboard');
+    cekPeringatanTenggat(); // async, tidak perlu await karena fire-and-forget
 }
 
 window.doLogout = function() {
@@ -317,6 +370,7 @@ window.doLogout = function() {
     document.getElementById('login-username').value = '';
     document.getElementById('login-password').value = '';
     document.getElementById('login-alert').innerHTML = '';
+    showNotification('Anda telah logout.', 'info');
 };
 
 // ==================== NAVIGASI HALAMAN ====================
@@ -362,9 +416,9 @@ async function renderDashboard() {
 
     try {
         const [buku, anggota, pinjam] = await Promise.all([
-            getBuku().catch(e => []),
-            getAnggota().catch(e => []),
-            getPinjam('Dipinjam').catch(e => [])
+            getBuku().catch(() => []),
+            getAnggota().catch(() => []),
+            getPinjam('Dipinjam').catch(() => [])
         ]);
 
         const pinjamAktif = pinjam.filter(p => p.status === 'Dipinjam');
@@ -484,8 +538,10 @@ window.saveBuku = async function() {
 
     if (id) {
         await updateBuku(id, data);
+        showNotification('Buku berhasil diperbarui.', 'success');
     } else {
         await addBuku(data);
+        showNotification('Buku berhasil ditambahkan.', 'success');
     }
     closeModal('modal-buku');
     await renderBuku();
@@ -495,6 +551,7 @@ window.hapusBuku = function(id) {
     showConfirm('Buku ini akan dihapus dari sistem.', async () => {
         await deleteBuku(id);
         await renderBuku();
+        showNotification('Buku berhasil dihapus.', 'success');
     });
 };
 
@@ -560,9 +617,11 @@ window.saveAnggota = async function() {
     if (id) {
         if (!data.password) delete data.password;
         await updateAnggota(id, data);
+        showNotification('Anggota berhasil diperbarui.', 'success');
     } else {
         if (!data.password) { alert('Password wajib diisi untuk anggota baru!'); return; }
         await addAnggota(data);
+        showNotification('Anggota berhasil ditambahkan.', 'success');
     }
     closeModal('modal-anggota');
     document.getElementById('anggota-id').value = '';
@@ -574,6 +633,7 @@ window.hapusAnggota = function(id) {
     showConfirm('Anggota ini akan dihapus dari sistem.', async () => {
         await deleteAnggota(id);
         await renderAnggota();
+        showNotification('Anggota berhasil dihapus.', 'success');
     });
 };
 
@@ -669,6 +729,7 @@ window.savePinjam = async function() {
     await addPinjam({ anggotaId, bukuId, tglPinjam, tenggat });
     closeModal('modal-pinjam');
     await renderPinjam();
+    showNotification('Buku berhasil dipinjam!', 'success');
 };
 
 window.hapusPinjam = function(id) {
@@ -684,6 +745,7 @@ window.hapusPinjam = function(id) {
         }
         await deletePinjam(id);
         await renderPinjam();
+        showNotification('Data peminjaman dihapus.', 'success');
     });
 };
 
@@ -804,6 +866,7 @@ window.prosesPengembalian = async function() {
 
     closeModal('modal-kembali');
     await renderKembali();
+    showNotification('Buku berhasil dikembalikan.', 'success');
 };
 
 // ==================== RIWAYAT TRANSAKSI (UI) ====================
@@ -851,7 +914,10 @@ window.showConfirm = function(msg, cb) {
     openModal('modal-confirm');
 };
 document.getElementById('confirm-yes-btn').addEventListener('click', async () => {
-    if (confirmCb) { await confirmCb(); confirmCb = null; }
+    if (confirmCb) {
+        await confirmCb();
+        confirmCb = null;
+    }
     closeModal('modal-confirm');
 });
 
@@ -893,6 +959,24 @@ window.kembalikanBukuLangsung = async function(bukuId) {
 
     await openKembaliModal(peminjaman.id);
 };
+
+// ==================== TOGGLE PASSWORD VISIBILITY ====================
+document.addEventListener('click', function(e) {
+    const toggleIcon = e.target.closest('.toggle-password');
+    if (!toggleIcon) return;
+
+    const wrapper = toggleIcon.closest('.password-wrapper');
+    if (!wrapper) return;
+
+    const input = wrapper.querySelector('input');
+    if (!input) return;
+
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
+
+    toggleIcon.classList.toggle('fa-eye');
+    toggleIcon.classList.toggle('fa-eye-slash');
+});
 
 // ==================== EKSPOR FUNGSI KE GLOBAL UNTUK DEBUGGING ====================
 window.initSampleData = initSampleData;
