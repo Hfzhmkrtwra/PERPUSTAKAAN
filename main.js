@@ -503,7 +503,6 @@ async function renderBuku() {
                         <button class="btn btn-danger btn-sm" onclick="hapusBuku('${b.id}')">🗑️</button>
                     ` : `
                         <button class="btn btn-success btn-sm" onclick="pinjamBukuLangsung('${b.id}')" ${b.stok < 1 ? 'disabled' : ''}>📤 Pinjam</button>
-                        <button class="btn btn-gold btn-sm" onclick="kembalikanBukuLangsung('${b.id}')">📥 Kembalikan</button>
                     `}
                 </td>
             </tr>`;
