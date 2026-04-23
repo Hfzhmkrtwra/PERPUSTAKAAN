@@ -787,7 +787,7 @@ async function renderKembali() {
             const bk = buku.find(b => b.id === p.bukuId);
             const late = p.tenggat < today;
             const days = late ? Math.floor((new Date(today) - new Date(p.tenggat)) / 86400000) : 0;
-            const denda = days * 1000;
+            const denda = days * 1250;
             rows += `<tr>
                 <td>${i + 1}</td>
                 <td>${angg ? angg.nama : '-'}</td>
@@ -834,7 +834,7 @@ function hitungDenda() {
 
         const late = tglKembali > p.tenggat;
         const days = late ? Math.floor((new Date(tglKembali) - new Date(p.tenggat)) / 86400000) : 0;
-        const denda = days * 1000;
+        const denda = days * 1250;
         const dendaEl = document.getElementById('denda-info');
         if (late) {
             dendaEl.style.display = 'block';
@@ -856,7 +856,7 @@ window.prosesPengembalian = async function() {
 
     const late = tglKembali > p.tenggat;
     const days = late ? Math.floor((new Date(tglKembali) - new Date(p.tenggat)) / 86400000) : 0;
-    const denda = days * 1000;
+    const denda = days * 1250;
 
     await updatePinjam(pinjamId, { ...p, status: 'Dikembalikan', tglKembali, denda });
 
